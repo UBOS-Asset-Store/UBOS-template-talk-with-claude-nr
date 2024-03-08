@@ -1,1 +1,232 @@
-[]
+[
+    {
+        "id": "2c43dbc45da18517",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "7b8e45decdc7489f",
+        "type": "http in",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "url": "/start",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "99c1579d785ed00e"
+            ]
+        ]
+    },
+    {
+        "id": "99c1579d785ed00e",
+        "type": "function",
+        "z": "2c43dbc45da18517",
+        "name": "make request to Claude",
+        "func": "msg.id = msg.payload.chat_id.toString();\nglobal.set(msg.id + 'cred', msg.payload)\n\n// msg.headers = msg.payload.key;\nmsg.headers = {\n    \"Content-Type\": \"application/json\",\n    \"x-api-key\": msg.payload.key,\n    \"anthropic-version\": \"2023-06-01\"\n}\nmsg.payload = {\n    model: msg.payload.model,\n    max_tokens: 1024,\n    system: msg.payload.system,\n    messages: [{ role: \"user\", content: \"Hello, Claude\" }],\n};\n\n\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 160,
+        "wires": [
+            [
+                "0ed45a84dfeffa17"
+            ]
+        ]
+    },
+    {
+        "id": "f322b07cef60d4ac",
+        "type": "http response",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 950,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "9308a3d13952f1a4",
+        "type": "function",
+        "z": "2c43dbc45da18517",
+        "name": "response",
+        "func": "if(msg.statusCode === 200){\n    const answers = msg.payload.content[0].text\n    \n    msg.payload = [{\n        message: answers,\n        type: 'Bot',\n    }]\n\n    global.set(msg.id, msg.payload)\n}\nelse {\n    \n    msg.payload = [{\n        message: `Ooops, something went wrong!🥲\n    ${msg.payload.error.message}`,\n        type: 'Bot',\n    }]\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 180,
+        "wires": [
+            [
+                "f322b07cef60d4ac"
+            ]
+        ]
+    },
+    {
+        "id": "9f20f1deef775ad8",
+        "type": "http in",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "url": "/css",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "03ba76c2e2d50a51"
+            ]
+        ]
+    },
+    {
+        "id": "bee07027d58c6068",
+        "type": "http response",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "statusCode": "",
+        "headers": {
+            "content-type": "text/css"
+        },
+        "x": 470,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "03ba76c2e2d50a51",
+        "type": "template",
+        "z": "2c43dbc45da18517",
+        "name": "customCSS",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "css",
+        "syntax": "mustache",
+        "template": "::-webkit-scrollbar {\n  width: 0.1px;\n  scrollbar-color: #9bc7f38b;\n}\n.main_container {\n  top:0 !important;\n  left: 0 !important; \n  height: 100vh !important;\n  width: 100% !important;\n  background-image: linear-gradient(180deg, #ffffff 25%, #EDEBE1 100%) !important;\n\n}\n\n.main_container>div>div>div>div>div>div>div>div>div>div {\n  height:100% !important; \n}\n.form_container, .answer_container   {\n    top: 50% !important;\n    transform: translate(0,-50%)!important;\n    max-height: 95vh !important;\n}\n.chat>div>div>div>div, .chat>div>div>div>div>div{\n  background-color: transparent !important;\n}\n.chat form, .chat form textarea {\n  border-radius: 4px !important;\n   background-color:#D97757 !important;\n  color: rgb(255 255 255);\n} \ndiv[data-cy=\"overlay-comments-wrapper\"]>div>div>div>div {\ncolor: rgb(37, 37, 37);\nbackground-color:transparent !important;\n}\n.bp3-input, .select-button {\n    border-radius: 5px !important;\n    color: #231F20 !important;\n}\n.select-button span {\n    color: inherit !important;\n}\n\n.generate_btn span{\n    color: #FFFFFF !important;\n}\n.answer_container>div {\n  border-radius: 3px;\n  box-shadow: rgba(0, 0, 0, 0.25) 0px 0px 4px 3px !important;\n}\n/* .answer_container>div>div>div>div>div>div>div {\n  border-radius: 10px;\n  padding: 7px !important;\n  \n} */\n.label-container {\n  justify-content: space-between !important;\n}\n\n",
+        "output": "str",
+        "x": 310,
+        "y": 80,
+        "wires": [
+            [
+                "bee07027d58c6068"
+            ]
+        ]
+    },
+    {
+        "id": "0ed45a84dfeffa17",
+        "type": "http request",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "body",
+        "url": "https://api.anthropic.com/v1/messages",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 630,
+        "y": 180,
+        "wires": [
+            [
+                "9308a3d13952f1a4"
+            ]
+        ]
+    },
+    {
+        "id": "a50d76979a115a97",
+        "type": "http in",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "url": "/demo",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 280,
+        "wires": [
+            [
+                "a454bd0ed274cf78"
+            ]
+        ]
+    },
+    {
+        "id": "b7d4ecdb9108fe8e",
+        "type": "http response",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 470,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "e1dc6eb5166fe80c",
+        "type": "http in",
+        "z": "2c43dbc45da18517",
+        "name": "",
+        "url": "/demo",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 220,
+        "wires": [
+            [
+                "05b54abc299b2ba7"
+            ]
+        ]
+    },
+    {
+        "id": "05b54abc299b2ba7",
+        "type": "function",
+        "z": "2c43dbc45da18517",
+        "name": "make request to Claude from chat",
+        "func": "msg.id = msg.req.query.chat_id\nnode.warn(msg.id);\nmsg.headers = {\n    \"Content-Type\": \"application/json\",\n    \"x-api-key\": global.get(msg.id + 'cred').key,\n    \"anthropic-version\": \"2023-06-01\"\n}\nmsg.payload = {\n    model: global.get(msg.id + 'cred').model,\n    max_tokens: 1024,\n    system: global.get(msg.id + 'cred').system,\n    messages: [{ role: \"user\", content: msg.payload.message }],\n};\n\n\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 220,
+        "wires": [
+            [
+                "0ed45a84dfeffa17"
+            ]
+        ]
+    },
+    {
+        "id": "a454bd0ed274cf78",
+        "type": "function",
+        "z": "2c43dbc45da18517",
+        "name": "chat history",
+        "func": "msg.id = msg.payload.chat_id\n\nmsg.payload = global.get(msg.id);\nglobal.set(msg.id, undefined);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 280,
+        "wires": [
+            [
+                "b7d4ecdb9108fe8e"
+            ]
+        ]
+    }
+]
